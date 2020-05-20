@@ -335,13 +335,16 @@ class ParsedownExtra extends Parsedown
     {
         $Block = parent::blockSetextHeader($Line, $Block);
 
-        if (preg_match('/[ ]*{('.$this->regexAttribute.'+)}[ ]*$/', $Block['element']['handler']['argument'], $matches, PREG_OFFSET_CAPTURE))
-        {
-            $attributeString = $matches[1][0];
+        
+        if(!is_null($Block)) {
+            if (preg_match('/[ ]*{('.$this->regexAttribute.'+)}[ ]*$/', $Block['element']['handler']['argument'], $matches, PREG_OFFSET_CAPTURE))
+            {
+                $attributeString = $matches[1][0];
 
-            $Block['element']['attributes'] = $this->parseAttributeData($attributeString);
+                $Block['element']['attributes'] = $this->parseAttributeData($attributeString);
 
-            $Block['element']['handler']['argument'] = substr($Block['element']['handler']['argument'], 0, $matches[0][1]);
+                $Block['element']['handler']['argument'] = substr($Block['element']['handler']['argument'], 0, $matches[0][1]);
+            }
         }
 
         return $Block;
@@ -398,7 +401,11 @@ class ParsedownExtra extends Parsedown
     {
         $Link = parent::inlineLink($Excerpt);
 
-        $remainder = substr($Excerpt['text'], $Link['extent']);
+        if(isset($Excerpt['text']) && isset($Link['extent'])) {
+            $remainder = substr($Excerpt['text'], $Link['extent']);
+        } else {
+            $remainder = '';
+        }
 
         if (preg_match('/^[ ]*{('.$this->regexAttribute.'+)}/', $remainder, $matches))
         {
@@ -545,7 +552,7 @@ class ParsedownExtra extends Parsedown
 
             $n = count($textElements) -1;
 
-            if ($textElements[$n]['name'] === 'p')
+            if (isset($textElements[$n]['name']) && $textElements[$n]['name'] === 'p')
             {
                 $backLinkElements = array_merge(
                     array(
